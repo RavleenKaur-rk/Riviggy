@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Riviggy — Group Food Orders</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0c0c0f; --surface:#141418; --card:#1c1c22; --border:#2a2a35;
+      --orange:#ff6b35; --orange2:#ff9500; --green:#22c55e; --red:#ef4444;
+      --blue:#3b82f6; --yellow:#fbbf24; --text:#f0f0f0; --muted:#888; --radius:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5}
+    nav{position:sticky;top:0;z-index:100;background:rgba(12,12,15,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;gap:14px;height:64px}
+    .nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.35rem;background:linear-gradient(135deg,var(--orange),var(--orange2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;cursor:default}
+    .nav-logo img{height:32px;width:auto;-webkit-background-clip:unset;-webkit-text-fill-color:unset;background-clip:unset;cursor:default}
+    .nav-pill{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer;transition:border-color .18s}
+    .nav-pill:hover{border-color:var(--orange)}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .app{display:grid;grid-template-columns:270px 1fr;min-height:calc(100vh - 64px)}
+    aside{background:var(--surface);border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:3px;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+    .sidebar-section{font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:12px 12px 5px}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;transition:all .17s;font-size:.87rem;color:#aaa;border:1px solid transparent}
+    .nav-item:hover{background:var(--card);color:var(--text)}
+    .nav-item.active{background:rgba(255,107,53,.1);border-color:rgba(255,107,53,.25);color:var(--orange)}
+    .nav-item .icon{font-size:1rem;width:20px;text-align:center}
+    .badge-count{margin-left:auto;background:var(--orange);color:#fff;border-radius:100px;padding:1px 7px;font-size:.7rem;font-weight:600}
+    .group-info-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:6px 0}
+    .group-code-display{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:.15em;color:var(--orange);text-align:center;padding:6px 0}
+    .gib-row{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);padding:2px 0}
+    .gib-val{color:var(--text);font-weight:500}
+    main{padding:26px;overflow-y:auto;max-height:calc(100vh - 64px)}
+    .page{display:none;animation:fadeIn .22s ease}
+    .page.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    .page-header{margin-bottom:24px}
+    .page-header h1{font-family:'Syne',sans-serif;font-size:1.85rem;font-weight:800}
+    .page-header p{color:var(--muted);margin-top:4px;font-size:.88rem}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+    .card-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+    .form-group{margin-bottom:14px}
+    label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:5px;font-weight:500}
+    input,select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;transition:border-color .18s;outline:none}
+    input:focus,select:focus{border-color:var(--orange)}
+    select option{background:var(--bg)}
+    .btn{padding:10px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:.86rem;cursor:pointer;border:none;transition:all .18s;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:var(--orange);color:#fff}
+    .btn-primary:hover{background:#ff8150;transform:translateY(-1px)}
+    .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .btn-outline:hover{border-color:var(--orange);color:var(--orange)}
+    .btn-sm{padding:6px 13px;font-size:.78rem;border-radius:8px}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{background:#16a34a}
+    .btn-full{width:100%;justify-content:center}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+    .status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:.73rem;font-weight:600}
+    .status-open{background:rgba(34,197,94,.15);color:var(--green)}
+    .status-locked{background:rgba(251,191,36,.15);color:var(--yellow)}
+    .status-paid{background:rgba(59,130,246,.15);color:var(--blue)}
+    .status-placed{background:rgba(255,107,53,.15);color:var(--orange)}
+    .restaurant-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+    .restaurant-card:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,107,53,.1)}
+    .restaurant-card.selected{border-color:var(--orange);background:rgba(255,107,53,.06)}
+    .rest-emoji{font-size:2.3rem;margin-bottom:8px}
+    .rest-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:4px}
+    .rest-meta{font-size:.76rem;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+    .rest-tag{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:.68rem;color:var(--muted)}
+    .rest-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+    .rest-rating{color:var(--yellow)}
+    .menu-item{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);transition:all .17s}
+    .menu-item:hover{border-color:rgba(255,107,53,.3)}
+    .menu-item-emoji{font-size:1.7rem;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--card);border-radius:10px;flex-shrink:0}
+    .menu-item-info{flex:1;min-width:0}
+    .menu-item-name{font-weight:500;font-size:.88rem;margin-bottom:2px}
+    .menu-item-desc{font-size:.73rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .menu-item-price{font-family:'Syne',sans-serif;font-weight:700;color:var(--orange);font-size:.95rem;white-space:nowrap}
+    .menu-item-unavailable{opacity:.4}
+    .qty-control{display:flex;align-items:center;gap:6px}
+    .qty-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+    .qty-btn:hover{border-color:var(--orange);color:var(--orange)}
+    .qty-num{font-weight:600;min-width:18px;text-align:center;font-size:.88rem}
+    .payment-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+    .payment-row:last-child{border-bottom:none}
+    .pay-user{flex:1;display:flex;align-items:center;gap:10px}
+    .pay-amount{font-family:'Syne',sans-serif;font-weight:700;color:var(--orange)}
+    .user-avatar{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+    .user-chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:3px 10px;font-size:.76rem}
+    #toast-container{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:8px;z-index:9999}
+    .toast{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 17px;font-size:.83rem;max-width:300px;display:flex;align-items:center;gap:9px;animation:slideIn .22s ease;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+    .toast.success{border-color:rgba(34,197,94,.4)}
+    .toast.error{border-color:rgba(239,68,68,.4)}
+    @keyframes slideIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px;width:100%;max-width:440px;animation:popIn .2s ease}
+    @keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem}
+    .modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:4px}
+    .modal-close:hover{color:var(--text)}
+    .empty{text-align:center;padding:40px 20px;color:var(--muted)}
+    .empty .e-icon{font-size:2.8rem;margin-bottom:10px;opacity:.5}
+    .empty h3{font-family:'Syne',sans-serif;color:var(--text);margin-bottom:5px}
+    .cat-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+    .cat-tab{padding:5px 13px;border-radius:100px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.76rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+    .cat-tab.active,.cat-tab:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,107,53,.08)}
+    .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+    .spinner{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.15);border-top-color:var(--orange);animation:spin .6s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .hero{text-align:center;padding:52px 20px}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.3);border-radius:100px;padding:5px 14px;font-size:.76rem;color:var(--orange);margin-bottom:18px}
+    .hero h1{font-family:'Syne',sans-serif;font-size:2.9rem;font-weight:800;line-height:1.1;margin-bottom:14px}
+    .hero h1 span{background:linear-gradient(135deg,var(--orange),var(--orange2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{color:var(--muted);font-size:.95rem;max-width:460px;margin:0 auto 28px}
+    .hero-btns{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+    .flow-steps{display:flex;gap:0;justify-content:center;margin:44px 0 0;flex-wrap:wrap}
+    .flow-step{text-align:center;padding:16px;flex:1;min-width:130px;position:relative}
+    .flow-step:not(:last-child)::after{content:'→';position:absolute;right:-4px;top:24px;color:var(--border);font-size:1.1rem}
+    .flow-num{width:34px;height:34px;border-radius:50%;background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.3);color:var(--orange);font-family:'Syne',sans-serif;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 9px;font-size:.9rem}
+    .flow-step h4{font-family:'Syne',sans-serif;font-size:.86rem}
+    .flow-step p{font-size:.75rem;color:var(--muted);margin-top:3px}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+    /* Hamburger button */
+    .hamburger{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;padding:4px 6px;line-height:1;flex-shrink:0}
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199}
+    .sidebar-overlay.open{display:block}
+
+    /* ── Tablet (≤1024px) ── */
+    @media(max-width:1024px){
+      .app{grid-template-columns:220px 1fr}
+      aside{padding:16px 10px}
+      main{padding:20px}
+      .hero h1{font-size:2.2rem}
+      .hero p{font-size:.88rem}
+      .grid-2{gap:14px}
+    }
+
+    /* ── Mobile (≤820px) ── */
+    @media(max-width:820px){
+      .hamburger{display:block}
+      .app{grid-template-columns:1fr}
+      aside{position:fixed;top:0;left:0;bottom:0;width:270px;z-index:200;transform:translateX(-100%);transition:transform .25s ease;padding-top:74px;height:100vh}
+      aside.open{transform:translateX(0)}
+      .grid-2{grid-template-columns:1fr}
+      main{padding:18px 14px;max-height:none}
+      .hero{padding:34px 10px}
+      .hero h1{font-size:1.9rem}
+      .hero p{font-size:.85rem;margin-bottom:20px}
+      .flow-steps{flex-direction:column;align-items:center;gap:0;margin-top:28px}
+      .flow-step{min-width:auto;width:100%;max-width:240px;padding:10px 16px;display:flex;align-items:center;gap:12px;text-align:left}
+      .flow-step:not(:last-child)::after{content:'';display:none}
+      .flow-num{margin:0;flex-shrink:0}
+      .flow-step h4{font-size:.84rem}
+      .flow-step p{font-size:.73rem;margin-top:1px}
+      .page-header h1{font-size:1.4rem}
+      .page-header p{font-size:.8rem}
+      .modal{margin:12px;max-width:100%;border-radius:14px;padding:20px}
+      #toast-container{left:12px;right:12px;bottom:14px}
+      .toast{max-width:100%}
+      .nav-pill{padding:4px 10px;font-size:.72rem}
+      nav{padding:0 14px;gap:8px}
+      .nav-logo{font-size:1.15rem}
+      .card{padding:16px}
+      .grid-auto{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+      .restaurant-card{padding:14px}
+      .rest-emoji{font-size:1.8rem}
+      .cat-tabs{gap:4px}
+      .menu-item{padding:10px 12px;gap:10px}
+      .menu-item-emoji{width:36px;height:36px;font-size:1.4rem}
+      #create-restaurants-list{grid-template-columns:1fr!important}
+    }
+
+    /* ── Small phone (≤480px) ── */
+    @media(max-width:480px){
+      .hero h1{font-size:1.5rem}
+      .hero-btns{flex-direction:column;gap:8px}
+      .hero-btns .btn{width:100%;justify-content:center}
+      .page-header h1{font-size:1.2rem}
+      .grid-auto{grid-template-columns:1fr}
+      nav{height:56px}
+      aside{padding-top:66px}
+      .nav-logo{font-size:1rem}
+      #nav-group-badge{display:none!important}
+      .card-title{font-size:.88rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  <div class="nav-logo"><img src="/logo.svg" alt="Riviggy" style="height:36px;width:auto"><span>Riviggy</span></div>
+  <div id="nav-group-badge" style="display:none" class="nav-pill">
+    <div class="dot"></div>
+    <span style="color:var(--muted)">Group:</span>
+    <strong id="nav-code-display" style="color:var(--orange);font-family:'Syne',sans-serif"></strong>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <div id="nav-auth-login" class="nav-pill" onclick="showPage('login')" style="cursor:pointer">
+      <span>🔐</span><span>Login</span>
+    </div>
+    <div id="nav-auth-user" style="display:none;align-items:center;gap:10px;display:none" class="nav-pill">
+      <span id="nav-auth-username">User</span>
+      <button class="btn btn-outline btn-sm" onclick="logoutUser()" style="padding:4px 10px;margin:0">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="app">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <aside id="sidebar">
+    <div class="sidebar-section">Main</div>
+    <div class="nav-item active" onclick="showPage('home')" id="nav-home"><span class="icon"></span>Home</div>
+    <div class="nav-item" onclick="showPage('restaurants')" id="nav-restaurants"><span class="icon"></span>Restaurants</div>
+    <div class="sidebar-section">Group Order</div>
+    <div class="nav-item" onclick="showPage('create-group')" id="nav-create-group"><span class="icon"></span>Create Group</div>
+    <div class="nav-item" onclick="showPage('join-group')" id="nav-join-group"><span class="icon"></span>Join Group</div>
+    <div id="sidebar-group-section" style="display:none">
+      <div class="sidebar-section">Active Order</div>
+      <div class="group-info-box">
+        <div class="group-code-display" id="sidebar-code">——</div>
+        <div class="gib-row"><span>Status</span><span class="gib-val" id="sidebar-status">—</span></div>
+        <div class="gib-row"><span>Total</span><span class="gib-val" id="sidebar-total">₹0</span></div>
+        <div class="gib-row"><span>Members</span><span class="gib-val" id="sidebar-members">0</span></div>
+      </div>
+      <div class="nav-item" onclick="showPage('menu')" id="nav-menu"><span class="icon"></span>Menu <span class="badge-count" id="cart-badge" style="display:none">0</span></div>
+      <div class="nav-item" onclick="showPage('order')" id="nav-order"><span class="icon"></span>Order Summary</div>
+      <div class="nav-item" onclick="showPage('payment')" id="nav-payment"><span class="icon"></span>Payments</div>
+    </div>
+    <div class="sidebar-section">System</div>
+    <div class="nav-item" onclick="showPage('logs')" id="nav-logs"><span class="icon"></span>Order Logs</div>
+  </aside>
+
+  <main>
+
+    <!-- LOGIN -->
+    <div id="page-login" class="page active">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:20px">
+        <div style="max-width:400px;width:100%">
+          <div style="text-align:center;margin-bottom:28px">
+            <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:8px">Login</h1>
+            <p style="color:var(--muted);font-size:.9rem">Sign in to your account or create a new one</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Sign In</div>
+            <div class="form-group"><label>Email</label><input id="login-email" type="email" placeholder="your@email.com" /></div>
+            <div class="form-group"><label>Password</label><input id="login-password" type="password" placeholder="••••••" /></div>
+            <button class="btn btn-primary btn-full" onclick="handleLogin()">Sign In</button>
+            <div style="text-align:center;color:var(--muted);font-size:.83rem;margin-top:12px">
+              Don't have an account? <a onclick="switchAuthMode('signup')" style="color:var(--orange);cursor:pointer;text-decoration:underline">Sign Up</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="page-signup" class="page" style="display:none">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:20px">
+        <div style="max-width:400px;width:100%">
+          <div style="text-align:center;margin-bottom:28px">
+            <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:8px">Create Account</h1>
+            <p style="color:var(--muted);font-size:.9rem">Join Riviggy and start ordering with friends</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Sign Up</div>
+            <div class="form-group"><label>Full Name</label><input id="signup-name" type="text" placeholder="Your name" /></div>
+            <div class="form-group"><label>Email</label><input id="signup-email" type="email" placeholder="your@email.com" /></div>
+            <div class="form-group"><label>Password</label><input id="signup-password" type="password" placeholder="••••••" /></div>
+            <div class="form-group"><label>Confirm Password</label><input id="signup-password-confirm" type="password" placeholder="••••••" /></div>
+            <button class="btn btn-primary btn-full" onclick="handleSignup()">Create Account</button>
+            <div style="text-align:center;color:var(--muted);font-size:.83rem;margin-top:12px">
+              Already have an account? <a onclick="switchAuthMode('login')" style="color:var(--orange);cursor:pointer;text-decoration:underline">Sign In</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <div id="page-home" class="page">
+      <div class="hero">
+        <div class="hero-badge">✨ Group Ordering, Simplified</div>
+        <h1>Order Together,<br><span>Pay Separately</span></h1>
+        <p>Create a group, invite friends, everyone picks their food and pays only for what they eat — no spreadsheets, no drama.</p>
+        <div class="hero-btns">
+          <button class="btn btn-primary" onclick="showPage('create-group')"> Create Group Order</button>
+          <button class="btn btn-outline" onclick="showPage('join-group')"> Join with Code</button>
+        </div>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-num">1</div><h4>Create</h4><p>Pick a restaurant</p></div>
+          <div class="flow-step"><div class="flow-num">2</div><h4>Invite</h4><p>Share the code</p></div>
+          <div class="flow-step"><div class="flow-num">3</div><h4>Pick</h4><p>Add your items</p></div>
+          <div class="flow-step"><div class="flow-num">4</div><h4>Pay</h4><p>Your share only</p></div>
+          <div class="flow-step"><div class="flow-num">5</div><h4>Done</h4><p>Order placed!</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESTAURANTS -->
+    <div id="page-restaurants" class="page">
+      <div class="page-header"><h1>🏪 Restaurants</h1><p>All available restaurants on campus</p></div>
+      <div id="restaurants-grid" class="grid-auto"><div class="empty"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- CREATE GROUP -->
+    <div id="page-create-group" class="page">
+      <div class="page-header"><h1>✨ Create Group Order</h1><p>Start an order and invite your friends</p></div>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title">👤 Your Info</div>
+            <div class="form-group"><label>Your User ID</label><input id="create-userId" type="text" placeholder="e.g. alice" /></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title">🏪 Choose Restaurant</div>
+            <div id="create-restaurants-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="empty"><div class="spinner"></div></div></div>
+            <input type="hidden" id="create-restaurantId" />
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title">⚙️ Settings</div>
+            <div class="form-group"><label>Lock After (minutes)</label><input id="create-lockMins" type="number" value="30" min="5" max="120" /></div>
+            <div class="form-group" style="margin-bottom:0"><label>Bill Split Type</label>
+              <select id="create-splitType">
+                <option value="item">Item-based (each pays for their items)</option>
+                <option value="equal">Equal split</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="createGroup()"> Create Group Order</button>
+        </div>
+        <div>
+          <div id="create-success-box" style="display:none">
+            <div class="card" style="border-color:rgba(255,107,53,.4);background:rgba(255,107,53,.04)">
+              <div class="card-title">🎉 Group Created!</div>
+              <p style="color:var(--muted);font-size:.83rem;margin-bottom:14px">Share this code with your friends:</p>
+              <div style="text-align:center;padding:14px 0">
+                <div id="created-code" style="font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;color:var(--orange);letter-spacing:.2em"></div>
+                <div style="color:var(--muted);font-size:.78rem;margin-top:6px">Group Code</div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button class="btn btn-outline btn-sm" style="flex:1" onclick="copyGroupCode()"> Copy</button>
+                <button class="btn btn-primary btn-sm" style="flex:1" onclick="showPage('menu')"> Browse Menu</button>
+              </div>
+            </div>
+          </div>
+          <div id="create-tip-box" class="card">
+            <div class="card-title"> Tips</div>
+            <div style="display:flex;flex-direction:column;gap:12px;font-size:.83rem">
+              <div style="display:flex;gap:10px"><span style="color:var(--orange)">1.</span><span>Choose a restaurant and create the group</span></div>
+              <div style="display:flex;gap:10px"><span style="color:var(--orange)">2.</span><span>Share the 6-letter code with friends</span></div>
+              <div style="display:flex;gap:10px"><span style="color:var(--orange)">3.</span><span>Everyone adds their own items from the menu</span></div>
+              <div style="display:flex;gap:10px"><span style="color:var(--orange)">4.</span><span>Lock the order when everyone's ready</span></div>
+              <div style="display:flex;gap:10px"><span style="color:var(--orange)">5.</span><span>Each person pays only their share</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOIN GROUP -->
+    <div id="page-join-group" class="page">
+      <div class="page-header"><h1>🔗 Join Group Order</h1><p>Enter a code to join your friend's order</p></div>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title">Join with Code</div>
+            <div class="form-group"><label>Your User ID</label><input id="join-userId" type="text" placeholder="e.g. bob" /></div>
+            <div class="form-group"><label>Group Code</label><input id="join-code" type="text" placeholder="e.g. AB1C2D" style="font-family:'Syne',sans-serif;font-size:1.15rem;letter-spacing:.1em;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" /></div>
+            <button class="btn btn-primary btn-full" onclick="joinGroup()"> Join Group</button>
+          </div>
+          <div class="card">
+            <div class="card-title">Already Joined? Load Group</div>
+            <div class="form-group"><label>Group Code</label><input id="load-code" type="text" placeholder="Group Code" style="font-family:'Syne',sans-serif;letter-spacing:.08em;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" /></div>
+            <div class="form-group" style="margin-bottom:0"><label>Your User ID</label><input id="load-userId" type="text" placeholder="Your User ID" /></div>
+            <div style="margin-top:12px"><button class="btn btn-outline btn-full" onclick="loadExistingGroup()">↩ Load Group</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"> Preview Group</div>
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <input id="peek-code" type="text" placeholder="Enter any code to preview" style="font-family:'Syne',sans-serif;letter-spacing:.08em;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" />
+            <button class="btn btn-outline btn-sm" onclick="peekGroup()">Go</button>
+          </div>
+          <div id="peek-result"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <div id="page-menu" class="page">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div><h1> Menu</h1><p id="menu-restaurant-name">Loading...</p></div>
+        <button class="btn btn-primary btn-sm" onclick="showPage('order')">📋 View Order</button>
+      </div>
+      <div id="cat-tabs" class="cat-tabs"></div>
+      <div id="menu-items-list" style="display:flex;flex-direction:column;gap:9px"><div class="empty"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div id="page-order" class="page">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div><h1> Order Summary</h1><p>All items in your group order</p></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span id="order-status-badge"></span>
+          <button class="btn btn-outline btn-sm" onclick="loadOrder()">↻</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title"> Items by User</div>
+            <div id="order-items-container"><div class="empty"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title"> Members</div>
+            <div id="order-members-list" style="display:flex;flex-wrap:wrap;gap:7px"></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title"> Bill</div>
+            <div id="order-bill-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"> Actions</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button class="btn btn-primary" onclick="showPage('payment')">💳 Go to Payment</button>
+              <button id="lock-order-btn" class="btn btn-outline" onclick="lockOrder()" style="display:none">🔒 Lock Order</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div id="page-payment" class="page">
+      <div class="page-header"><h1> Payments</h1><p>Pay your share and track the group</p></div>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title"> Your Bill</div>
+            <div id="my-bill-container"><div class="empty"><div class="spinner"></div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-title"> Pay Now</div>
+            <div class="form-group"><label>Payment Method</label>
+              <select id="pay-method">
+                <option value="UPI">📱 UPI</option>
+                <option value="Card">💳 Card</option>
+                <option value="Wallet">👛 Wallet</option>
+                <option value="Cash">💵 Cash on Delivery</option>
+              </select>
+            </div>
+            <button class="btn btn-green btn-full" onclick="makePayment()" id="pay-btn">💳 Pay My Share</button>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title"> Group Payment Status</div>
+            <div id="payment-status-container"><div class="empty"><div class="spinner"></div></div></div>
+          </div>
+          <div id="order-placed-banner" style="display:none">
+            <div class="card" style="border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.04);text-align:center;padding:26px">
+              <div style="font-size:2.2rem;margin-bottom:8px">🎉</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:5px">Order Placed!</div>
+              <div style="color:var(--muted);font-size:.82rem">Everyone paid. Your order is on its way!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div id="page-logs" class="page">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div><h1> Order Logs</h1><p>Streamed from server log file</p></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="loadLogs()">↻ Refresh</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red)" onclick="clearLogs()">🗑 Clear Logs</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="logs-container" style="font-family:monospace;font-size:.76rem;line-height:2;color:var(--muted);max-height:580px;overflow-y:auto">
+          <div class="empty"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+const state = {
+  userId: localStorage.getItem('cc_userId') || '',
+  userToken: localStorage.getItem('cc_userToken') || '',
+  userName: localStorage.getItem('cc_userName') || '',
+  groupUserId: localStorage.getItem('cc_groupUserId') || '',
+  groupCode: localStorage.getItem('cc_groupCode') || '',
+  currentOrder: null,
+  restaurants: [],
+  currentMenu: [],
+  cart: {},
+  selectedRestaurant: '',
+};
+
+const API = window.location.origin;
+
+async function api(method, path, body, useAuth = true) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (useAuth && state.userToken) {
+    opts.headers.Authorization = `Bearer ${state.userToken}`;
+  }
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.style.opacity = '0', 3000);
+  setTimeout(() => el.remove(), 3400);
+}
+
+// ── Authentication Functions ──────────────────────────────────
+
+function switchAuthMode(mode) {
+  if (state.userToken) return; // Don't allow switching if logged in
+  document.getElementById('page-login').style.display = mode === 'login' ? 'block' : 'none';
+  document.getElementById('page-signup').style.display = mode === 'signup' ? 'block' : 'none';
+}
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value.trim();
+  
+  if (!email || !password) {
+    return toast('Please enter email and password', 'error');
+  }
+  
+  try {
+    const data = await api('POST', '/auth/login', { email, password }, false);
+    state.userToken = data.token;
+    state.userName = data.user.name;
+    state.userId = data.user.id;
+    
+    localStorage.setItem('cc_userToken', state.userToken);
+    localStorage.setItem('cc_userName', state.userName);
+    localStorage.setItem('cc_userId', state.userId);
+    
+    updateAuthUI();
+    toast(`Welcome back, ${state.userName}! 👋`, 'success');
+    setTimeout(() => showPage('home'), 500);
+  } catch(e) {
+    toast(e.message || 'Login failed', 'error');
+  }
+}
+
+async function handleSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value.trim();
+  const passwordConfirm = document.getElementById('signup-password-confirm').value.trim();
+  
+  if (!name || !email || !password || !passwordConfirm) {
+    return toast('Please fill all fields', 'error');
+  }
+  
+  if (password !== passwordConfirm) {
+    return toast('Passwords do not match', 'error');
+  }
+  
+  if (password.length < 4) {
+    return toast('Password must be at least 4 characters', 'error');
+  }
+  
+  try {
+    const data = await api('POST', '/auth/signup', { name, email, password }, false);
+    toast(`Account created! Logging you in...`, 'success');
+    
+    // Auto-login after signup
+    setTimeout(async () => {
+      try {
+        const loginData = await api('POST', '/auth/login', { email, password }, false);
+        state.userToken = loginData.token;
+        state.userName = loginData.user.name;
+        state.userId = loginData.user.id;
+        
+        localStorage.setItem('cc_userToken', state.userToken);
+        localStorage.setItem('cc_userName', state.userName);
+        localStorage.setItem('cc_userId', state.userId);
+        
+        updateAuthUI();
+        toast(`Welcome, ${state.userName}! 👋`, 'success');
+        showPage('home');
+      } catch(e) {
+        toast('Please log in manually', 'error');
+        switchAuthMode('login');
+      }
+    }, 600);
+  } catch(e) {
+    toast(e.message || 'Signup failed', 'error');
+  }
+}
+
+async function logoutUser() {
+  try {
+    if (state.userToken) {
+      await api('POST', '/auth/logout', {}, true);
+    }
+  } catch(e) {
+    // Continue with logout even if API fails
+  }
+  
+  state.userToken = '';
+  state.userName = '';
+  state.userId = '';
+  state.groupUserId = '';
+  state.groupCode = '';
+  
+  localStorage.removeItem('cc_userToken');
+  localStorage.removeItem('cc_userName');
+  localStorage.removeItem('cc_userId');
+  localStorage.removeItem('cc_groupUserId');
+  localStorage.removeItem('cc_groupCode');
+  
+  state.currentOrder = null;
+  updateAuthUI();
+  document.getElementById('sidebar-group-section').style.display = 'none';
+  
+  toast('Logged out successfully', 'success');
+  setTimeout(() => showPage('login'), 500);
+}
+
+function updateAuthUI() {
+  const loginBtn = document.getElementById('nav-auth-login');
+  const userBtn = document.getElementById('nav-auth-user');
+  
+  if (state.userToken) {
+    loginBtn.style.display = 'none';
+    userBtn.style.display = 'flex';
+    document.getElementById('nav-auth-username').textContent = state.userName;
+  } else {
+    loginBtn.style.display = 'flex';
+    userBtn.style.display = 'none';
+  }
+}
+
+function showPage(id) {
+  // Check if auth is required and user is not logged in
+  const authRequiredPages = ['home', 'restaurants', 'create-group', 'join-group', 'menu', 'order', 'payment', 'logs'];
+  if (authRequiredPages.includes(id) && !state.userToken) {
+    toast('Please log in first', 'error');
+    showPage('login');
+    return;
+  }
+  
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  const nav = document.getElementById('nav-' + id);
+  if (page) page.classList.add('active');
+  if (nav) nav.classList.add('active');
+  if (id === 'restaurants') loadRestaurants();
+  if (id === 'create-group') loadRestaurantsForCreate();
+  if (id === 'menu') loadMenu();
+  if (id === 'order') loadOrder();
+  if (id === 'payment') loadPaymentPage();
+  if (id === 'logs') loadLogs();
+}
+
+function updateSidebar(order) {
+  if (!order) return;
+  document.getElementById('sidebar-group-section').style.display = 'block';
+  document.getElementById('sidebar-code').textContent = order.groupCode;
+  document.getElementById('sidebar-status').textContent = order.status.toUpperCase();
+  document.getElementById('sidebar-total').textContent = '₹' + (order.totalAmount || 0);
+  document.getElementById('sidebar-members').textContent = order.users ? order.users.length : 0;
+  document.getElementById('nav-group-badge').style.display = 'flex';
+  document.getElementById('nav-code-display').textContent = order.groupCode;
+}
+
+const REST_EMOJIS = { campus_bites:'🍔', pizza_planet:'🍕', wrap_n_roll:'🌯', chai_adda:'☕' };
+
+function renderRestaurantCard(r, fn, selectedId) {
+  const emoji = REST_EMOJIS[r.id] || '🍽️';
+  const sel = selectedId === r.id ? 'selected' : '';
+  const tags = (r.cuisine || []).map(c => `<span class="rest-tag">${c}</span>`).join('');
+  return `<div class="restaurant-card ${sel}" onclick="${fn}('${r.id}')">
+    <div class="rest-emoji">${emoji}</div>
+    <div class="rest-name">${r.name}</div>
+    <div class="rest-meta"><span class="rest-rating">★ ${r.rating}</span><span>⏱ ${r.deliveryTime}</span><span>₹${r.minOrder} min</span></div>
+    <div class="rest-tags">${tags}</div>
+  </div>`;
+}
+
+async function loadRestaurants() {
+  try {
+    const data = await api('GET', '/restaurants');
+    state.restaurants = data.restaurants;
+    const grid = document.getElementById('restaurants-grid');
+    grid.innerHTML = data.restaurants.length
+      ? data.restaurants.map(r => renderRestaurantCard(r, 'viewRestaurant', '')).join('')
+      : '<div class="empty"><h3>No restaurants</h3></div>';
+  } catch(e) { toast('Failed to load restaurants', 'error'); }
+}
+
+function viewRestaurant(id) {
+  state.selectedRestaurant = id;
+  if (state.groupCode) showPage('menu');
+  else { toast('Create or join a group to order', 'info'); showPage('create-group'); }
+}
+
+async function loadRestaurantsForCreate() {
+  try {
+    if (!state.restaurants.length) {
+      const data = await api('GET', '/restaurants');
+      state.restaurants = data.restaurants;
+    }
+    const container = document.getElementById('create-restaurants-list');
+    container.innerHTML = state.restaurants.map(r => renderRestaurantCard(r, 'selectRestaurantForCreate', state.selectedRestaurant)).join('');
+  } catch(e) { document.getElementById('create-restaurants-list').innerHTML = '<p style="color:var(--red)">Failed to load</p>'; }
+}
+
+function selectRestaurantForCreate(id) {
+  state.selectedRestaurant = id;
+  document.getElementById('create-restaurantId').value = id;
+  loadRestaurantsForCreate();
+}
+
+async function createGroup() {
+  const userId = document.getElementById('create-userId').value.trim() || state.userName;
+  const restaurantId = document.getElementById('create-restaurantId').value || state.selectedRestaurant;
+  const lockAfterMinutes = parseInt(document.getElementById('create-lockMins').value) || 30;
+  const splitType = document.getElementById('create-splitType').value;
+  if (!userId) return toast('Enter a name for this group', 'error');
+  if (!restaurantId) return toast('Select a restaurant', 'error');
+  try {
+    const data = await api('POST', '/group/create', { userId, restaurantId, lockAfterMinutes, splitType });
+    state.groupUserId = userId;
+    state.groupCode = data.groupCode; 
+    state.currentOrder = data.order;
+    state.selectedRestaurant = restaurantId;
+    localStorage.setItem('cc_groupUserId', userId);
+    localStorage.setItem('cc_groupCode', data.groupCode);
+    document.getElementById('created-code').textContent = data.groupCode;
+    document.getElementById('create-success-box').style.display = 'block';
+    document.getElementById('create-tip-box').style.display = 'none';
+    updateSidebar(data.order);
+    toast('Group created! Code: ' + data.groupCode, 'success');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function copyGroupCode() {
+  navigator.clipboard?.writeText(state.groupCode);
+  toast('Code copied: ' + state.groupCode, 'success');
+}
+
+async function joinGroup() {
+  const userId = document.getElementById('join-userId').value.trim() || state.userName;
+  const groupCode = document.getElementById('join-code').value.trim().toUpperCase();
+  if (!userId) return toast('Enter a name for this group', 'error');
+  if (!groupCode) return toast('Enter a group code', 'error');
+  try {
+    await api('POST', '/group/join', { userId, groupCode });
+    state.groupUserId = userId;
+    state.groupCode = groupCode;
+    localStorage.setItem('cc_groupUserId', userId);
+    localStorage.setItem('cc_groupCode', groupCode);
+    const orderData = await api('GET', '/group/' + groupCode);
+    state.currentOrder = orderData.order; state.selectedRestaurant = orderData.order.restaurant;
+    updateSidebar(orderData.order);
+    toast('Joined group ' + groupCode + '!', 'success');
+    showPage('menu');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function loadExistingGroup() {
+  const code = document.getElementById('load-code').value.trim().toUpperCase();
+  const userId = document.getElementById('load-userId').value.trim() || state.userName;
+  if (!code) return toast('Enter a group code', 'error');
+  if (!userId) return toast('Enter a name for this group', 'error');
+  try {
+    const data = await api('GET', '/group/' + code);
+    state.groupCode = code;
+    state.currentOrder = data.order; state.selectedRestaurant = data.order.restaurant;
+    localStorage.setItem('cc_groupCode', code);
+    updateSidebar(data.order);
+    toast('Group loaded!', 'success'); showPage('order');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function peekGroup() {
+  const code = document.getElementById('peek-code').value.trim().toUpperCase();
+  if (!code) return;
+  const el = document.getElementById('peek-result');
+  try {
+    if (!state.restaurants.length) { const d = await api('GET', '/restaurants'); state.restaurants = d.restaurants; }
+    const data = await api('GET', '/group/' + code);
+    const o = data.order;
+    const rest = state.restaurants.find(r => r.id === o.restaurant);
+    el.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-family:'Syne',sans-serif;font-weight:700">${o.groupCode}</span>
+        <span class="status status-${o.status}">${o.status}</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--muted);display:flex;flex-direction:column;gap:3px">
+        <div>🏪 ${rest ? rest.name : o.restaurant}</div>
+        <div>👥 ${o.users.length} member(s)</div>
+        <div>💰 ₹${o.totalAmount} total</div>
+        <div>📦 ${o.items.length} item(s)</div>
+      </div>
+    </div>`;
+  } catch(e) { el.innerHTML = `<div style="color:var(--red);font-size:.83rem">Group not found</div>`; }
+}
+
+// ── MENU ──
+async function loadMenu() {
+  if (!state.groupCode) {
+    document.getElementById('menu-items-list').innerHTML = '<div class="empty"><div class="e-icon">🔗</div><h3>No active group</h3><p>Create or join a group first</p></div>';
+    return;
+  }
+  if (!state.currentOrder) {
+    try { const d = await api('GET', '/group/' + state.groupCode); state.currentOrder = d.order; state.selectedRestaurant = d.order.restaurant; } catch(e) { return; }
+  }
+  const restId = state.currentOrder.restaurant;
+  if (!state.restaurants.length) { try { const d = await api('GET', '/restaurants'); state.restaurants = d.restaurants; } catch(e) {} }
+  const rest = state.restaurants.find(r => r.id === restId);
+  document.getElementById('menu-restaurant-name').textContent = rest ? rest.name : restId;
+  try {
+    const data = await api('GET', '/restaurants/menu/' + restId);
+    state.currentMenu = data.menu;
+    const catTabs = document.getElementById('cat-tabs');
+    catTabs.innerHTML = ['All', ...data.categories].map((c, i) =>
+      `<button class="cat-tab ${i===0?'active':''}" onclick="filterMenu('${c}',this)">${c}</button>`
+    ).join('');
+    renderMenuItems(data.menu);
+  } catch(e) { toast('Failed to load menu: ' + e.message, 'error'); }
+}
+
+function filterMenu(cat, el) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderMenuItems(cat === 'All' ? state.currentMenu : state.currentMenu.filter(i => i.category === cat));
+}
+
+const FOOD_EMOJIS = { 'veg burger':'🥗','chicken burger':'🍔','burger':'🍔','fries':'🍟','pizza':'🍕','margherita':'🍕','pepperoni':'🍕','pasta':'🍝','breadstick':'🥖','wrap':'🌯','sandwich':'🥪','coffee':'☕','chai':'🍵','cold coffee':'🧋','smoothie':'🥤','samosa':'🥟','poha':'🍚','maggi':'🍜','paratha':'🫓','salad':'🥗','default':'🍽️' };
+
+function foodEmoji(name) {
+  const n = name.toLowerCase();
+  for (const [k, v] of Object.entries(FOOD_EMOJIS)) if (n.includes(k)) return v;
+  return FOOD_EMOJIS.default;
+}
+
+function renderMenuItems(items) {
+  const container = document.getElementById('menu-items-list');
+  if (!items.length) { container.innerHTML = '<div class="empty"><p>No items in this category</p></div>'; return; }
+  container.innerHTML = items.map(item => {
+    const qty = state.cart[item.id] || 0;
+    const ua = !item.available;
+    return `<div class="menu-item ${ua ? 'menu-item-unavailable' : ''}" id="mi-${item.id}">
+      <div class="menu-item-emoji">${foodEmoji(item.name)}</div>
+      <div class="menu-item-info">
+        <div class="menu-item-name">${item.name}${ua ? ' <span style="color:var(--red);font-size:.7rem">(Unavailable)</span>' : ''}</div>
+        <div class="menu-item-desc">${item.description || ''}</div>
+        <div style="margin-top:4px"><span class="rest-tag">${item.category}</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+        <div class="menu-item-price">₹${item.price}</div>
+        ${item.available ? `<div class="qty-control" id="qc-${item.id}">
+          ${qty > 0 ? `<button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button><span class="qty-num">${qty}</span>` : ''}
+          <button class="qty-btn" onclick="changeQty('${item.id}',1)" style="${qty > 0 ? '' : 'background:var(--orange);color:#fff;border-color:var(--orange);padding:0 10px;width:auto;font-size:.78rem;font-weight:600'}">
+            ${qty > 0 ? '+' : '+ Add'}
+          </button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function changeQty(itemId, delta) {
+  const curr = state.cart[itemId] || 0;
+  const newQty = Math.max(0, curr + delta);
+  if (delta > 0) {
+    if (!state.userId) { showUserModal(); return; }
+    if (!state.groupCode) { toast('Join a group first', 'error'); return; }
+    try {
+      await api('POST', '/order/add-item', { groupCode: state.groupCode, userId: state.groupUserId, menuItemId: itemId, quantity: 1 });
+      state.cart[itemId] = (state.cart[itemId] || 0) + 1;
+      updateCartBadge(); refreshQtyControl(itemId);
+      toast('Added!', 'success');
+    } catch(e) { toast(e.message, 'error'); }
+  } else {
+    state.cart[itemId] = newQty;
+    if (newQty === 0) delete state.cart[itemId];
+    updateCartBadge(); refreshQtyControl(itemId);
+  }
+}
+
+function refreshQtyControl(itemId) {
+  const qty = state.cart[itemId] || 0;
+  const qc = document.getElementById('qc-' + itemId);
+  if (!qc) return;
+  qc.innerHTML = `
+    ${qty > 0 ? `<button class="qty-btn" onclick="changeQty('${itemId}',-1)">−</button><span class="qty-num">${qty}</span>` : ''}
+    <button class="qty-btn" onclick="changeQty('${itemId}',1)" style="${qty > 0 ? '' : 'background:var(--orange);color:#fff;border-color:var(--orange);padding:0 10px;width:auto;font-size:.78rem;font-weight:600'}">
+      ${qty > 0 ? '+' : '+ Add'}
+    </button>`;
+}
+
+function updateCartBadge() {
+  const total = Object.values(state.cart).reduce((a, b) => a + b, 0);
+  const badge = document.getElementById('cart-badge');
+  badge.style.display = total > 0 ? 'inline' : 'none';
+  badge.textContent = total;
+}
+
+// ── ORDER SUMMARY ──
+const COLORS = ['#ff6b35','#3b82f6','#22c55e','#fbbf24','#a855f7','#ec4899','#06b6d4'];
+function userColor(uid) { let h = 0; for (const c of uid) h = (h * 31 + c.charCodeAt(0)) % COLORS.length; return COLORS[h]; }
+
+async function loadOrder() {
+  if (!state.groupCode) { document.getElementById('order-items-container').innerHTML = '<div class="empty"><p>No active group</p></div>'; return; }
+  try {
+    const data = await api('GET', '/group/' + state.groupCode + '?splitView=item');
+    state.currentOrder = data.order;
+    updateSidebar(data.order);
+    renderOrder(data.order);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderOrder(order) {
+  document.getElementById('order-status-badge').outerHTML = `<span id="order-status-badge" class="status status-${order.status}">${order.status}</span>`;
+  document.getElementById('order-members-list').innerHTML = order.users.map(u => {
+    const uid = typeof u === 'string' ? u : u.userId;
+    const c = userColor(uid);
+    return `<div class="user-chip"><div class="user-avatar" style="background:${c}20;color:${c}">${uid[0].toUpperCase()}</div>${uid}</div>`;
+  }).join('');
+
+  const container = document.getElementById('order-items-container');
+  if (!order.items.length) {
+    container.innerHTML = '<div class="empty"><div class="e-icon">🛒</div><h3>No items yet</h3><p>Go to menu and add items</p></div>';
+  } else {
+    const byUser = {};
+    order.items.forEach(item => { if (!byUser[item.addedBy]) byUser[item.addedBy] = []; byUser[item.addedBy].push(item); });
+    container.innerHTML = Object.entries(byUser).map(([uid, items]) => {
+      const c = userColor(uid);
+      const sub = items.reduce((s, i) => s + i.price * i.quantity, 0);
+      return `<div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+          <div class="user-avatar" style="width:28px;height:28px;background:${c}20;color:${c};font-size:.72rem">${uid[0].toUpperCase()}</div>
+          <span style="font-weight:600;font-size:.9rem">${uid}</span>
+          <span style="margin-left:auto;color:var(--orange);font-family:'Syne',sans-serif;font-weight:700">₹${sub.toFixed(2)}</span>
+        </div>
+        ${items.map(item => `
+          <div style="display:flex;align-items:center;gap:9px;padding:7px 10px;background:var(--surface);border-radius:8px;margin-bottom:3px;font-size:.81rem">
+            <span>${foodEmoji(item.name)}</span>
+            <span style="flex:1">${item.name}</span>
+            <span style="color:var(--muted)">×${item.quantity}</span>
+            <span style="color:var(--orange)">₹${(item.price * item.quantity).toFixed(2)}</span>
+            ${uid === state.userId && order.status === 'open' ? `<div style="display:flex;align-items:center;gap:4px">
+              <button onclick="updateItemQty('${item.itemId}',${item.quantity - 1})" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;width:22px;height:22px;font-size:.8rem;display:flex;align-items:center;justify-content:center" title="Decrease">−</button>
+              <button onclick="updateItemQty('${item.itemId}',${item.quantity + 1})" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;width:22px;height:22px;font-size:.8rem;display:flex;align-items:center;justify-content:center" title="Increase">+</button>
+              <button onclick="removeItem('${item.itemId}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;line-height:1" title="Remove">✕</button>
+            </div>` : ''}
+          </div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('order-bill-summary').innerHTML = `
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:.83rem"><span style="color:var(--muted)">Total Items</span><span>${order.items.length}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:.83rem"><span style="color:var(--muted)">Split</span><span>${order.splitType === 'equal' ? 'Equal' : 'Item-based'}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 0;font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem"><span>Total</span><span style="color:var(--orange)">₹${order.totalAmount}</span></div>`;
+
+  const lb = document.getElementById('lock-order-btn');
+  lb.style.display = (order.createdBy === state.userId && order.status === 'open') ? 'flex' : 'none';
+}
+
+async function removeItem(itemId) {
+  try {
+    await api('DELETE', '/order/remove-item', { groupCode: state.groupCode, userId: state.groupUserId, itemId });
+    toast('Item removed', 'info'); loadOrder();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function lockOrder() {
+  if (!state.userId) return toast('Set your user ID first', 'error');
+  try {
+    await api('PATCH', '/group/lock', { groupCode: state.groupCode, userId: state.groupUserId });
+    toast('Order locked! 🔒', 'success'); loadOrder();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── PAYMENT ──
+async function loadPaymentPage() {
+  if (!state.groupCode || !state.userId) {
+    document.getElementById('my-bill-container').innerHTML = '<div class="empty"><p>Join a group and set your user ID first</p></div>';
+    return;
+  }
+  try {
+    const [bill, status] = await Promise.all([
+      api('GET', `/payment/bill/${state.groupCode}/${state.userId}`),
+      api('GET', `/payment/status/${state.groupCode}`)
+    ]);
+    renderMyBill(bill);
+    renderPaymentStatus(status);
+    if (status.orderStatus === 'placed') {
+      document.getElementById('order-placed-banner').style.display = 'block';
+      document.getElementById('pay-btn').disabled = true;
+    }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderMyBill(bill) {
+  const container = document.getElementById('my-bill-container');
+  const amount = bill.activeAmount || 0;
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:.76rem;color:var(--muted)">Your share (${bill.splitType})</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:var(--orange)">₹${amount.toFixed(2)}</div>
+      </div>
+      ${bill.paid ? `<div style="color:var(--green);font-size:1.8rem">✅</div>` : ''}
+    </div>
+    ${bill.yourItems.length ? `
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:7px;font-weight:600">Your items:</div>
+      ${bill.yourItems.map(i => `<div style="display:flex;justify-content:space-between;font-size:.81rem;padding:5px 0;border-bottom:1px solid var(--border)">
+        <span>${foodEmoji(i.name)} ${i.name} ×${i.quantity}</span>
+        <span style="color:var(--orange)">₹${(i.price * i.quantity).toFixed(2)}</span>
+      </div>`).join('')}
+    ` : '<div style="color:var(--muted);font-size:.81rem">No items added by you yet</div>'}
+    ${bill.paid ? `<div style="margin-top:10px;padding:9px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:.8rem;color:var(--green)">✅ Paid via ${bill.paymentDetails?.method}</div>` : ''}`;
+
+  const btn = document.getElementById('pay-btn');
+  if (bill.paid) { btn.disabled = true; btn.textContent = '✅ Already Paid'; }
+  else { btn.disabled = false; btn.textContent = '💳 Pay My Share'; }
+}
+
+function renderPaymentStatus(status) {
+  const container = document.getElementById('payment-status-container');
+  const summary = status.paymentSummary;
+  if (!summary.length) { container.innerHTML = '<div class="empty"><p>No payments yet</p></div>'; return; }
+  container.innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <div style="flex:1;background:var(--surface);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:.7rem;color:var(--muted)">Collected</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--green);font-size:1.1rem">₹${status.totalCollected}</div>
+      </div>
+      <div style="flex:1;background:var(--surface);border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:.7rem;color:var(--muted)">Remaining</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;color:var(--orange);font-size:1.1rem">₹${status.totalRemaining != null ? status.totalRemaining.toFixed(2) : (status.totalAmount - status.totalCollected).toFixed(2)}</div>
+      </div>
+    </div>
+    ${summary.map(p => {
+      const c = userColor(p.userId);
+      return `<div class="payment-row">
+        <div class="pay-user">
+          <div class="user-avatar" style="width:30px;height:30px;background:${c}20;color:${c}">${p.userId[0].toUpperCase()}</div>
+          <div><div style="font-weight:500;font-size:.87rem">${p.userId}</div><div style="font-size:.71rem;color:var(--muted)">${p.paid ? 'Paid via ' + p.method : 'Pending'}</div></div>
+        </div>
+        <div class="pay-amount">₹${p.amountDue.toFixed(2)}</div>
+        <div>${p.paid ? '<span style="color:var(--green);font-size:1.1rem">✅</span>' : '<span style="color:var(--muted)">⏳</span>'}</div>
+      </div>`;
+    }).join('')}`;
+}
+
+async function makePayment() {
+  if (!state.userId) return toast('Set your user ID first', 'error');
+  if (!state.groupCode) return toast('Join a group first', 'error');
+  const method = document.getElementById('pay-method').value;
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Processing...';
+  try {
+    const data = await api('POST', '/payment/pay', { groupCode: state.groupCode, userId: state.groupUserId, method });
+    toast(`Payment of ₹${data.payment.amount} successful! 🎉`, 'success');
+    if (data.allPaid) {
+      document.getElementById('order-placed-banner').style.display = 'block';
+      toast('🎉 Order placed! All paid!', 'success');
+      updateSidebar({ ...state.currentOrder, status: 'placed' });
+    }
+    loadPaymentPage();
+  } catch(e) { toast(e.message, 'error'); btn.disabled = false; btn.innerHTML = '💳 Pay My Share'; }
+}
+
+// ── LOGS ──
+async function loadLogs() {
+  const container = document.getElementById('logs-container');
+  container.innerHTML = '<div style="color:var(--muted)">Loading stream...</div>';
+  try {
+    const data = await api('GET', '/restaurants/logs');
+    if (!data.logs.length) { container.innerHTML = '<div style="color:var(--muted)">No logs yet. Create some orders!</div>'; return; }
+    const colors = { CREATED:'#22c55e',JOINED:'#3b82f6',ADD_ITEM:'#fbbf24',PAYMENT:'#a855f7',LOCKED:'#ef4444',PLACED:'#22c55e',DELETED:'#ef4444',MANUALLY:'#ef4444',AUTO:'#ef4444',ORDER:'#22c55e',REMOVE:'#f97316' };
+    container.innerHTML = data.logs.map(line => {
+      const m = line.match(/^\[(.+?)\]\s+(.+)$/);
+      const time = m ? new Date(m[1]).toLocaleString() : '';
+      const rest = m ? m[2] : line;
+      const fw = rest.split(' ')[0];
+      return `<div style="padding:1px 0"><span style="color:#444">[${time}]</span> <span style="color:${colors[fw]||'#888'}">${rest}</span></div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  } catch(e) { container.innerHTML = `<div style="color:var(--red)">Error: ${e.message}</div>`; }
+}
+
+// ── PUT /order/update-item — 5️⃣ PUT HTTP Method ──
+async function updateItemQty(itemId, newQty) {
+  if (newQty < 1) { removeItem(itemId); return; }
+  try {
+    await api('PUT', '/order/update-item', { groupCode: state.groupCode, userId: state.groupUserId, itemId, quantity: newQty });
+    toast('Quantity updated', 'success'); loadOrder();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── DELETE /restaurants/logs — 1️⃣ fs.unlinkSync ──
+async function clearLogs() {
+  try {
+    await api('DELETE', '/restaurants/logs');
+    toast('Logs cleared', 'success');
+    document.getElementById('logs-container').innerHTML = '<div style="color:var(--muted)">No logs yet. Create some orders!</div>';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── INIT ──
+async function init() {
+  // Check if user is authenticated
+  updateAuthUI();
+  
+  if (!state.userToken) {
+    // Show login page immediately
+    document.getElementById('page-login').classList.add('active');
+    return;
+  }
+  
+  // User is authenticated
+  if (state.userName) document.getElementById('nav-auth-username').textContent = state.userName;
+  
+  try { const d = await api('GET', '/restaurants'); state.restaurants = d.restaurants; } catch(e) {}
+  
+  if (state.groupCode) {
+    try {
+      const d = await api('GET', '/group/' + state.groupCode);
+      state.currentOrder = d.order; state.selectedRestaurant = d.order.restaurant;
+      updateSidebar(d.order);
+    } catch(e) { state.groupCode = ''; localStorage.removeItem('cc_groupCode'); }
+  }
+  
+  // Show home page if user is logged in
+  document.getElementById('page-login').classList.remove('active');
+  document.getElementById('page-home').classList.add('active');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('login-email').matches(':focus')) handleLogin(); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('login-password').matches(':focus')) handleLogin(); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('signup-password-confirm').matches(':focus')) handleSignup(); });
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+// Close sidebar when a nav item is clicked on mobile
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => { if (window.innerWidth <= 820) closeSidebar(); });
+});
+
+init();
+</script>
+</body>
+</html>

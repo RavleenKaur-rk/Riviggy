@@ -1,0 +1,199 @@
+{
+  "campus_bites": [
+    {
+      "id": "CB001",
+      "name": "Veg Burger",
+      "price": 80,
+      "category": "Burgers",
+      "available": true,
+      "image": "/images/menu/veg_burger.png",
+      "description": "Crispy veggie patty with fresh veggies"
+    },
+    {
+      "id": "CB002",
+      "name": "Chicken Burger",
+      "price": 110,
+      "category": "Burgers",
+      "available": true,
+      "image": "/images/menu/chk_burger.png",
+      "description": "Juicy chicken patty with cheese"
+    },
+    {
+      "id": "CB003",
+      "name": "French Fries",
+      "price": 60,
+      "category": "Snacks",
+      "available": true,
+      "image": "/images/menu/fries.png",
+      "description": "Crispy salted fries"
+    },
+    {
+      "id": "CB004",
+      "name": "Loaded Fries",
+      "price": 100,
+      "category": "Snacks",
+      "available": true,
+      "image": "/images/menu/loaded_fries.png",
+      "description": "Fries topped with cheese sauce & jalapeños"
+    },
+    {
+      "id": "CB005",
+      "name": "Cold Coffee",
+      "price": 70,
+      "category": "Beverages",
+      "available": true,
+      "image": "/images/menu/cold_coffee.png",
+      "description": "Creamy cold coffee with ice cream"
+    },
+    {
+      "id": "CB006",
+      "name": "Sandwich",
+      "price": 65,
+      "category": "Snacks",
+      "available": false,
+      "image": "/images/menu/sandwich.png",
+      "description": "Classic grilled sandwich (currently unavailable)"
+    }
+  ],
+  "pizza_planet": [
+    {
+      "id": "PP001",
+      "name": "Margherita",
+      "price": 220,
+      "category": "Pizza",
+      "available": true,
+      "image": "/images/menu/margherita.png",
+      "description": "Classic tomato and mozzarella"
+    },
+    {
+      "id": "PP002",
+      "name": "Pepperoni",
+      "price": 280,
+      "category": "Pizza",
+      "available": true,
+      "image": "/images/menu/pepperoni.png",
+      "description": "Loaded with spicy pepperoni"
+    },
+    {
+      "id": "PP003",
+      "name": "Farmhouse",
+      "price": 250,
+      "category": "Pizza",
+      "available": true,
+      "image": "/images/menu/farmhouse.png",
+      "description": "Capsicum, mushroom, onion & corn"
+    },
+    {
+      "id": "PP004",
+      "name": "Pasta Arrabbiata",
+      "price": 180,
+      "category": "Pasta",
+      "available": true,
+      "image": "/images/menu/pasta.png",
+      "description": "Penne in spicy tomato sauce"
+    },
+    {
+      "id": "PP005",
+      "name": "Garlic Breadsticks",
+      "price": 120,
+      "category": "Sides",
+      "available": true,
+      "image": "/images/menu/breadsticks.png",
+      "description": "8 garlic butter breadsticks with dip"
+    }
+  ],
+  "wrap_n_roll": [
+    {
+      "id": "WR001",
+      "name": "Chicken Tikka Wrap",
+      "price": 130,
+      "category": "Wraps",
+      "available": true,
+      "image": "/images/menu/tikka_wrap.png",
+      "description": "Grilled chicken tikka with mint chutney"
+    },
+    {
+      "id": "WR002",
+      "name": "Paneer Wrap",
+      "price": 110,
+      "category": "Wraps",
+      "available": true,
+      "image": "/images/menu/paneer_wrap.png",
+      "description": "Spiced paneer with veggies in a tortilla"
+    },
+    {
+      "id": "WR003",
+      "name": "Caesar Salad Wrap",
+      "price": 140,
+      "category": "Wraps",
+      "available": true,
+      "image": "/images/menu/caesar_wrap.png",
+      "description": "Romaine, croutons, parmesan in a wrap"
+    },
+    {
+      "id": "WR004",
+      "name": "Energy Smoothie",
+      "price": 90,
+      "category": "Drinks",
+      "available": true,
+      "image": "/images/menu/smoothie.png",
+      "description": "Banana, spinach & peanut butter"
+    }
+  ],
+  "chai_adda": [
+    {
+      "id": "CA001",
+      "name": "Masala Chai",
+      "price": 25,
+      "category": "Chai",
+      "available": true,
+      "image": "/images/menu/masala_chai.png",
+      "description": "Authentic ginger & cardamom chai"
+    },
+    {
+      "id": "CA002",
+      "name": "Filter Coffee",
+      "price": 30,
+      "category": "Coffee",
+      "available": true,
+      "image": "/images/menu/filter_coffee.png",
+      "description": "South Indian style filter coffee"
+    },
+    {
+      "id": "CA003",
+      "name": "Samosa (2 pcs)",
+      "price": 30,
+      "category": "Snacks",
+      "available": true,
+      "image": "/images/menu/samosa.png",
+      "description": "Crispy potato samosas"
+    },
+    {
+      "id": "CA004",
+      "name": "Poha",
+      "price": 45,
+      "category": "Breakfast",
+      "available": true,
+      "image": "/images/menu/poha.png",
+      "description": "Light flattened rice with peanuts"
+    },
+    {
+      "id": "CA005",
+      "name": "Maggi Noodles",
+      "price": 50,
+      "category": "Snacks",
+      "available": true,
+      "image": "/images/menu/maggi.png",
+      "description": "Classic Masala Maggi with veggies"
+    },
+    {
+      "id": "CA006",
+      "name": "Paratha (2 pcs)",
+      "price": 70,
+      "category": "Breakfast",
+      "available": true,
+      "image": "/images/menu/paratha.png",
+      "description": "Butter paratha with pickle & curd"
+    }
+  ]
+}

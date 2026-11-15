@@ -1,0 +1,285 @@
+{
+  "info": {
+    "name": "Riviggy API",
+    "_postman_id": "riviggy-v1",
+    "description": "Complete API test collection for Riviggy Group Food Ordering System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "BASE_URL", "value": "http://localhost:3000" },
+    { "key": "GROUP_CODE", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "🏪 Restaurants",
+      "item": [
+        {
+          "name": "GET all restaurants",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/restaurants",
+            "description": "Returns a list of all available restaurants"
+          }
+        },
+        {
+          "name": "GET menu - campus_bites",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/restaurants/menu/campus_bites",
+            "description": "Returns full menu for Campus Bites"
+          }
+        },
+        {
+          "name": "GET menu - pizza_planet",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/restaurants/menu/pizza_planet"
+          }
+        },
+        {
+          "name": "GET menu filtered by category",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/restaurants/menu/campus_bites?category=Burgers"
+          }
+        },
+        {
+          "name": "GET order logs (stream)",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/restaurants/logs",
+            "description": "Returns order history read via file stream"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Group Orders",
+      "item": [
+        {
+          "name": "POST create group",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/group/create",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"alice\",\n  \"restaurantId\": \"campus_bites\",\n  \"lockAfterMinutes\": 30,\n  \"splitType\": \"item\"\n}"
+            },
+            "description": "Alice creates a group order. Copy the groupCode from the response."
+          }
+        },
+        {
+          "name": "POST join group",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/group/join",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"bob\",\n  \"groupCode\": \"{{GROUP_CODE}}\"\n}"
+            },
+            "description": "Bob joins using the group code"
+          }
+        },
+        {
+          "name": "POST join group (Charlie)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/group/join",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"charlie\",\n  \"groupCode\": \"{{GROUP_CODE}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET group details",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/group/{{GROUP_CODE}}",
+            "description": "View full order details"
+          }
+        },
+        {
+          "name": "GET group details with bill split",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/group/{{GROUP_CODE}}?splitView=item",
+            "description": "View order with per-user bill breakdown"
+          }
+        },
+        {
+          "name": "PATCH lock group",
+          "request": {
+            "method": "PATCH",
+            "url": "{{BASE_URL}}/group/lock",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"alice\"\n}"
+            },
+            "description": "Alice (creator) manually locks the order"
+          }
+        },
+        {
+          "name": "DELETE group",
+          "request": {
+            "method": "DELETE",
+            "url": "{{BASE_URL}}/group/{{GROUP_CODE}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"alice\"\n}"
+            },
+            "description": "Creator deletes the group"
+          }
+        },
+        {
+          "name": "GET all groups (debug)",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/group"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🍔 Order Items",
+      "item": [
+        {
+          "name": "POST add item (Alice - Burger)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/order/add-item",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"alice\",\n  \"menuItemId\": \"CB001\",\n  \"quantity\": 1,\n  \"specialInstructions\": \"No onions\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST add item (Alice - Fries)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/order/add-item",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"alice\",\n  \"menuItemId\": \"CB003\",\n  \"quantity\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "POST add item (Bob - Chicken Burger)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/order/add-item",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"bob\",\n  \"menuItemId\": \"CB002\",\n  \"quantity\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "POST add item (Charlie - Cold Coffee)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/order/add-item",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"charlie\",\n  \"menuItemId\": \"CB005\",\n  \"quantity\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "GET order items by user",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/order/{{GROUP_CODE}}/items"
+          }
+        },
+        {
+          "name": "DELETE remove item",
+          "request": {
+            "method": "DELETE",
+            "url": "{{BASE_URL}}/order/remove-item",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"alice\",\n  \"itemId\": \"REPLACE_WITH_ITEM_ID\"\n}"
+            },
+            "description": "Replace REPLACE_WITH_ITEM_ID with an actual itemId from add-item response"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Payments",
+      "item": [
+        {
+          "name": "POST pay (Alice)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/payment/pay",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"alice\",\n  \"method\": \"UPI\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST pay (Bob)",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/payment/pay",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"bob\",\n  \"method\": \"Card\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST pay (Charlie) — triggers ORDER PLACED",
+          "request": {
+            "method": "POST",
+            "url": "{{BASE_URL}}/payment/pay",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groupCode\": \"{{GROUP_CODE}}\",\n  \"userId\": \"charlie\",\n  \"method\": \"Wallet\"\n}"
+            },
+            "description": "When all users pay, order status changes to 'placed'"
+          }
+        },
+        {
+          "name": "GET payment status",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/payment/status/{{GROUP_CODE}}"
+          }
+        },
+        {
+          "name": "GET user bill - Alice",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/payment/bill/{{GROUP_CODE}}/alice"
+          }
+        },
+        {
+          "name": "GET user bill - Bob",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/payment/bill/{{GROUP_CODE}}/bob"
+          }
+        }
+      ]
+    }
+  ]
+}

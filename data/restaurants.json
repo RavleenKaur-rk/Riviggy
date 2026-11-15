@@ -1,0 +1,58 @@
+[
+  {
+    "id": "campus_bites",
+    "name": "Campus Bites",
+    "description": "Quick bites for busy students",
+    "rating": 4.2,
+    "deliveryTime": "15-25 min",
+    "minOrder": 80,
+    "logo": "/images/restaurants/campus_bites.png",
+    "cuisine": [
+      "Indian",
+      "Fast Food"
+    ],
+    "isOpen": true
+  },
+  {
+    "id": "pizza_planet",
+    "name": "Pizza Planet",
+    "description": "Wood-fired pizzas & pastas",
+    "rating": 4.5,
+    "deliveryTime": "20-35 min",
+    "minOrder": 200,
+    "logo": "/images/restaurants/pizza_planet.png",
+    "cuisine": [
+      "Italian",
+      "Pizza"
+    ],
+    "isOpen": true
+  },
+  {
+    "id": "wrap_n_roll",
+    "name": "Wrap N Roll",
+    "description": "Healthy wraps and rolls",
+    "rating": 4,
+    "deliveryTime": "10-20 min",
+    "minOrder": 100,
+    "logo": "/images/restaurants/wrap_n_roll.png",
+    "cuisine": [
+      "Continental",
+      "Wraps"
+    ],
+    "isOpen": true
+  },
+  {
+    "id": "chai_adda",
+    "name": "Chai Adda",
+    "description": "Chai, snacks & all-day breakfast",
+    "rating": 4.6,
+    "deliveryTime": "5-15 min",
+    "minOrder": 50,
+    "logo": "/images/restaurants/chai_adda.png",
+    "cuisine": [
+      "Beverages",
+      "Snacks"
+    ],
+    "isOpen": true
+  }
+]
